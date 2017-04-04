@@ -1,0 +1,37 @@
+<ptplugin name="{{p.id}}" engine="linkmenu">
+	<settings>
+		<option name="margin_x" value="{{ p.marginLeft.value }}" type="int" />
+		<option name="margin_y" value="{{ p.marginTop.value }}" type="int" />
+
+	{%if p.dataXML.isRemote%}
+		<option name="xml" value="{{ p.dataXML.value }}" type="string" />
+	{%else%}
+		<option name="xml" value="{{dataDirectory}}/{{pluginDirectory}}/{{ p.dataXML.fileName }}" type="string" />
+	{%endif%}
+
+		<option name="color_bg_default_color" value="{{p.color_bg_default.colorRRGGBB}}" type="string" />
+		<option name="color_bg_default_alpha" value="{{p.color_bg_default.alpha}}" type="float" />
+
+		<option name="color_bg_hover_color" value="{{p.color_bg_hover.colorRRGGBB}}" type="string" />
+		<option name="color_bg_hover_alpha" value="{{p.color_bg_hover.alpha}}" type="float" />
+
+		<option name="color_bg_selected_color" value="{{p.color_bg_selected.colorRRGGBB}}" type="string" />
+		<option name="color_bg_selected_alpha" value="{{p.color_bg_selected.alpha}}" type="float" />
+
+		<option name="text_font_family" value="{{ p.text_font.family }}" type="string" />
+		<option name="text_font_bold" value="{{ p.text_font.bold }}" type="bool" />
+		<option name="text_font_italics" value="{{ p.text_font.italic }}" type="bool" />
+		<option name="text_font_underline" value="{{ p.text_font.underline }}" type="bool" />
+		<option name="text_font_strikethrough" value="{{ p.text_font.strikethrough }}" type="bool" />
+		<option name="text_font_size" value="{{p.text_font.size}}" type="int" />
+
+		<option name="color_text_default_color" value="{{p.color_text_default.colorRRGGBB}}" type="string" />
+		<option name="color_text_default_alpha" value="{{p.color_text_default.alpha}}" type="float" />
+
+		<option name="color_text_hover_color" value="{{p.color_text_hover.colorRRGGBB}}" type="string" />
+		<option name="color_text_hover_alpha" value="{{p.color_text_hover.alpha}}" type="float" />
+
+		<option name="color_text_selected_color" value="{{p.color_text_selected.colorRRGGBB}}" type="string" />
+		<option name="color_text_selected_alpha" value="{{p.color_text_selected.alpha}}" type="float" />
+	</settings>
+</ptplugin>

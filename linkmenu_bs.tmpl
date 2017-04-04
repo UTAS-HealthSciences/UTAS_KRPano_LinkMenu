@@ -1,0 +1,104 @@
+//Container object.
+var LinkMenu = {
+  options: {},
+  data: {},
+}
+
+LinkMenu.GetOptions = function() {
+  let settings = krpano.get('ptplugin[linkmenu].settings').option.getArray();
+  if(settings == null) return false;
+  for(let i = 0; i < settings.length; i++)
+  {
+    switch(settings[i]['type'])
+    {
+      case 'bool':
+        LinkMenu.options[settings[i]['name']] = settings[i]['value'] == 'true';
+        break;
+      case 'int':
+        LinkMenu.options[settings[i]['name']] = parseInt(settings[i]['value']);
+        break;
+      case 'float':
+        LinkMenu.options[settings[i]['name']] = parseFloat(settings[i]['value']);
+        break;
+      default:
+        LinkMenu.options[settings[i]['name']] = settings[i]['value'];
+        break;
+    }
+  }
+}
+
+LinkMenu.ConvertToRGB = function(hex) {
+  return ktools.Color.hex2rgb(hex);
+}
+
+LinkMenu.ConvertToRGBA = function(hex, alpha) {
+  return LinkMenu.ConvertToRGB(hex).join(",")+','+alpha;
+}
+
+LinkMenu.XMLtoJSON = function(source)
+{
+  $.ajax({
+    url: source,
+    dataType: "xml",
+    success: function(data)
+    {
+      console.log(LinkMenu.ParseXML(data.getElementsByTagName("LinksMenu")[0]));
+    }
+  });
+}
+
+LinkMenu.ParseXML = function(xml)
+{
+  // Create the return object
+	var obj = {};
+
+	if (xml.nodeType == 1) { // element
+		// do attributes
+		if (xml.attributes.length > 0) {
+		obj["@attr"] = {};
+			for (var j = 0; j < xml.attributes.length; j++) {
+				var attribute = xml.attributes.item(j);
+				obj["@attr"][attribute.nodeName] = attribute.nodeValue;
+			}
+		}
+	} else if (xml.nodeType == 3 && xml.nodeValue.trim().length > 0) { // text
+    obj = xml.nodeValue;
+	}
+
+	// do children
+	// If just one text node inside
+	if (xml.hasChildNodes() && xml.childNodes.length === 1 && xml.childNodes[0].nodeType === 3 && !obj["@attr"]) {
+    obj = xml.childNodes[0].nodeValue;
+	}
+	else if (xml.hasChildNodes()) {
+		for(var i = 0; i < xml.childNodes.length; i++) {
+			var item = xml.childNodes.item(i);
+			var nodeName = item.nodeName;
+      if(nodeName == "#text") continue;
+      if (typeof(obj[nodeName]) == "undefined") {
+				obj[nodeName] = LinkMenu.ParseXML(item);
+			} else {
+				if (typeof(obj[nodeName].push) == "undefined") {
+					var old = obj[nodeName];
+					obj[nodeName] = [];
+					obj[nodeName].push(old);
+				}
+				obj[nodeName].push(LinkMenu.ParseXML(item));
+			}
+		}
+	}
+	return obj;
+}
+
+
+LinkMenu.Display = function() {
+
+
+
+}
+
+// Shorthand vars.
+var lm = LinkMenu;
+lm.o = lm.options;
+lm.rgb = LinkMenu.ConvertToRGB;
+lm.rgba = LinkMenu.ConvertToRGBA;
