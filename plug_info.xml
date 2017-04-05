@@ -27,10 +27,6 @@
           <row id="r_colors_bg_hover">
             <color id="color_bg_hover" name="tr: Hovered background color" default="#FFF" needAlpha="true" defaultAlpha="0.8" />
           </row>
-
-          <row id="r_colors_bg_selected">
-            <color id="color_bg_selected" name="tr: Selected background color" default="#FFF" needAlpha="true" defaultAlpha="0.8" />
-          </row>
         </group>
 
         <group id="g_colors_text" name="tr: Text">
@@ -39,15 +35,11 @@
           </row>
 
           <row id="r_colors_text_default">
-            <color id="color_text_default" name="tr: Default background color" default="#FFF" needAlpha="true" defaultAlpha="0.8" />
+            <color id="color_text_default" name="tr: Default text color" default="#FFF" needAlpha="true" defaultAlpha="0.8" />
           </row>
 
           <row id="r_colors_text_hover">
-            <color id="color_text_hover" name="tr: Hovered background color" default="#FFF" needAlpha="true" defaultAlpha="0.8" />
-          </row>
-
-          <row id="r_colors_text_selected">
-            <color id="color_text_selected" name="tr: Selected background color" default="#FFF" needAlpha="true" defaultAlpha="0.8" />
+            <color id="color_text_hover" name="tr: Hovered text color" default="#FFF" needAlpha="true" defaultAlpha="0.8" />
           </row>
         </group>
       </group>
