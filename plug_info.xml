@@ -1,0 +1,54 @@
+<plugin id="linkmenu"
+        category="tr:Navigation"
+        name="tr:Links Menu"
+        version="1.0"
+        isGraphical="true"
+        multipleInstance="false"
+        description="tr:Allows the use of a thumbnailed link menu."
+        author="Connor Deckers (cdeckers) 2017">
+
+    <parameters>
+      <group id="g_settings" name="tr: Settings">
+        <row id="r_margin">
+          <number id="marginTop" name="tr: Top margin" minimum="0" maximum="9999" suffix="px" />
+          <number id="marginLeft" name="tr: Left margin" minimum="0" maximum="9999" suffix="px" />
+        </row>
+        <row id="r_data">
+          <filechooser id="dataXML" name="tr: XML Data File" allowRemote="true" />
+        </row>
+      </group>
+
+      <group id="g_colors" name="tr: Colours">
+        <group id="g_colors_bg" name="tr: Background">
+          <row id="r_colors_bg_default">
+            <color id="color_bg_default" name="tr: Default background color" default="#FFF" needAlpha="true" defaultAlpha="0.8" />
+          </row>
+
+          <row id="r_colors_bg_hover">
+            <color id="color_bg_hover" name="tr: Hovered background color" default="#FFF" needAlpha="true" defaultAlpha="0.8" />
+          </row>
+        </group>
+
+        <group id="g_colors_text" name="tr: Text">
+          <row id="r_colors_text_font_select">
+            <font id="text_font" name="tr: Font" default="Calibri" size="16" />
+          </row>
+
+          <row id="r_colors_text_default">
+            <color id="color_text_default" name="tr: Default text color" default="#FFF" needAlpha="true" defaultAlpha="0.8" />
+          </row>
+
+          <row id="r_colors_text_hover">
+            <color id="color_text_hover" name="tr: Hovered text color" default="#FFF" needAlpha="true" defaultAlpha="0.8" />
+          </row>
+        </group>
+      </group>
+    </parameters>
+
+    <templates>
+        <template url="linkmenu.tmpl" />
+        <template url="linkmenu_bs.tmpl" type="jsbootstrap" />
+        <template url="linkmenu_bsle.tmpl" type="jsbootstraploaded" />
+        <template url="jsevents.tmpl" />
+    </templates>
+</plugin>

@@ -1,0 +1,265 @@
+//Container object.
+var LinkMenu = {
+  options: {},
+  data: {},
+}
+
+LinkMenu.GetOptions = function() {
+  let settings = krpano.get('ptplugin[linkmenu].settings').option.getArray();
+  if(settings == null) return false;
+  for(let i = 0; i < settings.length; i++)
+  {
+    switch(settings[i]['type'])
+    {
+      case 'bool':
+        LinkMenu.options[settings[i]['name']] = settings[i]['value'] == 'true';
+        break;
+      case 'int':
+        LinkMenu.options[settings[i]['name']] = parseInt(settings[i]['value']);
+        break;
+      case 'float':
+        LinkMenu.options[settings[i]['name']] = parseFloat(settings[i]['value']);
+        break;
+      default:
+        LinkMenu.options[settings[i]['name']] = settings[i]['value'];
+        break;
+    }
+  }
+}
+
+LinkMenu.ConvertToRGB = function(hex) {
+  return ktools.Color.hex2rgb(hex);
+}
+
+LinkMenu.ConvertToRGBA = function(hex, alpha) {
+  return LinkMenu.ConvertToRGB(hex).join(",")+','+alpha;
+}
+
+LinkMenu.BuildMenuItem = function(parent, data)
+{
+  // Check if we have our primary container build yet?
+  var container = $(".linkmenu-container");
+
+  if($(container).length == 0)
+  {
+     let c = document.createElement('div');
+     c.className = "linkmenu-container";
+     $("#tourDIV").append(c);
+     container = $(c);
+  }
+
+
+  if(parent == null)
+  {
+    // We have no parent element, so we are a parent element.
+    // So let's build our base element here.
+    let el = document.createElement('div');
+    el.className = "linkmenu linkmenu-element linkmenu-parent";
+    el.setAttribute('data-id', data.id);
+    el.setAttribute('data-parent', null);
+    el.setAttribute('data-href', data.href);
+    el.innerHTML = `
+    <img src="${data.thumbnail}" width="100" height="60" />
+    <p>${data.title}</p>
+    `;
+    $(container).append(el);
+  }
+  else
+  {
+    // We presume that we have a parent, so lets build the child element here.
+    // Don't forget to make sure we only build the childs bounding box once. That'll make sure it appears like a menu!
+
+    var childContainer = $(".linkmenu-child-of-"+parent);
+    if($(childContainer).length == 0)
+    {
+       let c = document.createElement('div');
+       c.className = "linkmenu-child-container linkmenu-child-of-" + parent;
+       let $par = $(".linkmenu-parent[data-id='" + parent + "']");
+       c.style.top = $par.position().top + "px";
+       c.style.left = $($par).innerWidth()+LinkMenu.options.margin_x + "px";
+       childContainer = $(c);
+       $(container).append(childContainer);
+    }
+
+
+    let el = document.createElement('div');
+    el.className = "linkmenu linkmenu-element linkmenu-child";
+    el.setAttribute('data-id', data.id);
+    el.setAttribute('data-parent', parent);
+    el.setAttribute('data-href', data.href);
+    el.innerHTML = `
+    <img src="${data.thumbnail}" width="100" height="60" />
+    <p>${data.title}</p>
+    `;
+    $(childContainer).append(el);
+
+
+  }
+}
+
+LinkMenu.Build = function(source) {
+  $.ajax({
+    url: source,
+    dataType: "xml",
+  }).done(function(data) {
+    LinkMenu.BuildStyling();
+    LinkMenu.Generate(data.getElementsByTagName("LinksMenu")[0]);
+  });
+}
+
+LinkMenu.BuildStyling = function() {
+  if($("style#linkmenu").length == 0)
+  {
+    $("head").append('<style id="linkmenu"></style>');
+  }
+
+  let font_styling = '';
+  if(LinkMenu.options.text_font_bold)
+  {
+    font_styling += 'font-weight:bold;\n';
+  }
+  if(LinkMenu.options.text_font_underline || LinkMenu.options.text_font_strikethrough)
+  {
+    font_styling += 'text-decoration:' + (LinkMenu.options.text_font_underline?'underline ':'') + (LinkMenu.options.text_font_strikethrough?'line-through ':'') + ';\n';
+  }
+  if(LinkMenu.options.text_font_italics)
+  {
+    font_styling += 'font-style:italic;\n';
+  }
+
+  $("style#linkmenu").html(`
+    .linkmenu-container {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        padding-top: ${LinkMenu.options.margin_y}px;
+        padding-left: ${LinkMenu.options.margin_x}px;
+        top: 0;
+        pointer-events: none;
+    }
+
+    .linkmenu-parent {
+        width: 300px;
+        background-color: rgba(${LinkMenu.ConvertToRGBA(LinkMenu.options.color_bg_default_color,LinkMenu.options.color_bg_default_alpha)});
+        color: rgba(${LinkMenu.ConvertToRGBA(LinkMenu.options.color_text_default_color,LinkMenu.options.color_text_default_alpha)});
+        margin-bottom: 0px;
+        padding: 10px;
+        overflow: auto;
+        display: flex;
+        align-items: center;
+        pointer-events: all;
+        cursor:pointer;
+    }
+
+    .linkmenu-element img, .linkmenu-element p {
+      float:left;
+    }
+
+    .linkmenu-element p {
+      margin-left: 15px;
+      font-family: ${LinkMenu.options.text_font_family}, sans-serif;
+      font-size: ${LinkMenu.options.text_font_size}px;
+      ${font_styling}
+    }
+
+    .linkmenu-child-container {
+      position:absolute;
+      display:none;
+    }
+
+    .linkmenu-child {
+        float: left;
+        clear: both;
+        background-color: rgba(${LinkMenu.ConvertToRGBA(LinkMenu.options.color_bg_default_color,LinkMenu.options.color_bg_default_alpha)});
+        color: rgba(${LinkMenu.ConvertToRGBA(LinkMenu.options.color_text_default_color,LinkMenu.options.color_text_default_alpha)});
+        width: 300px;
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        cursor: pointer;
+        pointer-events: all;
+    }
+
+    .linkmenu-hover {
+      background-color: rgba(${LinkMenu.ConvertToRGBA(LinkMenu.options.color_bg_hover_color,LinkMenu.options.color_bg_hover_alpha)});
+      color: rgba(${LinkMenu.ConvertToRGBA(LinkMenu.options.color_text_hover_color,LinkMenu.options.color_text_hover_alpha)});
+    }
+`);
+}
+
+LinkMenu.Generate = function(xml) {
+  var linkgroups = xml.getElementsByTagName("linkgroup");
+  for(let i = 0; i < linkgroups.length; i++)
+  {
+      // Go through and build the parent of each link group we find.
+      var item = linkgroups[i];
+      LinkMenu.BuildMenuItem(null, {
+          id: i,
+          thumbnail: item.attributes['thumbnail'].value,
+          title: item.attributes['name'].value,
+          href: item.attributes['href'].value,
+      });
+
+      // Get all elements of type link (if any) and loop through them.
+      var children = item.getElementsByTagName("link");
+      for(let j = 0; j < children.length; j++)
+      {
+        var child = children[j];
+        LinkMenu.BuildMenuItem(i, {
+            id: j,
+            thumbnail: child.attributes['thumbnail'].value,
+            title: child.attributes['name'].value,
+            href: child.attributes['href'].value,
+        });
+      }
+  }
+}
+
+// Shorthand vars.
+var lm = LinkMenu;
+lm.o = lm.options;
+lm.d = lm.data;
+lm.rgb = LinkMenu.ConvertToRGB;
+lm.rgba = LinkMenu.ConvertToRGBA;
+
+var submenu_close = null;
+
+$(document).on('mouseenter', ".linkmenu-parent", function() {
+    clearTimeout(submenu_close);
+    submenu_close = null;
+    $(this).addClass('linkmenu-hover');
+    $('.linkmenu-child-container').css('display', 'none');
+    $('.linkmenu-child-of-'+$(this).data('id')).css('display', 'block');
+});
+
+$(document).on('mouseleave', ".linkmenu-parent", function() {
+    $(this).removeClass('linkmenu-hover');
+    submenu_close = setTimeout(function() {
+      $('.linkmenu-child-container').css('display', 'none');
+    }, 50);
+});
+
+$(document).on('mouseenter', '.linkmenu-child', function() {
+    $(this).addClass('linkmenu-hover');
+});
+
+$(document).on('mouseleave', ".linkmenu-child", function() {
+    $(this).removeClass('linkmenu-hover');
+});
+
+$(document).on('mouseenter', '.linkmenu-child-container', function() {
+    clearTimeout(submenu_close);
+    submenu_close = null;
+});
+
+$(document).on('mouseleave', '.linkmenu-child-container', function() {
+  submenu_hovered_over = false;
+  $(this).css('display', 'none');
+});
+
+$(document).on('click', '.linkmenu-element', function() {
+  if($(this).data('href').trim() != '')
+  {
+    window.open($(this).data('href').trim(), '_blank');
+  }
+});
